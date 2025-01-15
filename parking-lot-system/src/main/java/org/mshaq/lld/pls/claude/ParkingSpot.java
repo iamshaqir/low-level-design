@@ -1,9 +1,13 @@
 package org.mshaq.lld.pls.claude;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mshaq.lld.pls.claude.Enum.ParkingSpotType;
 import org.mshaq.lld.pls.claude.model.Vehicle;
 
 public class ParkingSpot {
+
+    private static final Logger logger = LogManager.getLogger(ParkingSpot.class);
     private String levelId;
     private String spotId;
     private ParkingSpotType spotType;
@@ -19,14 +23,21 @@ public class ParkingSpot {
     }
 
     public boolean parkVehicle(Vehicle vehicle) {
-        if (isOccupied) return false;
+        if (isOccupied) {
+            logger.warn("Attempt to park vehicle {} in occupied spot {}", vehicle.getLicensePlate(), spotId);
+            return false;
+        }
         this.vehicle = vehicle;
         this.isOccupied = true;
+        logger.info("Vehicle {} parked in spot {}", vehicle.getLicensePlate(), spotId);
         return true;
     }
 
     public boolean remove() {
-        if (!isOccupied) return false;
+        if (!isOccupied) {
+            logger.warn("Attempt to remove vehicle from empty spot {}", spotId);
+            return false;
+        }
         this.vehicle = null;
         this.isOccupied = false;
         return true;

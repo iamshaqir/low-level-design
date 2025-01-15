@@ -1,5 +1,7 @@
 package org.mshaq.lld.pls.claude;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mshaq.lld.pls.claude.Enum.ParkingSpotType;
 import org.mshaq.lld.pls.claude.Enum.VehicleType;
 
@@ -9,12 +11,14 @@ import java.util.Optional;
 
 public class ParkingLevel {
 
+    private static final Logger logger = LogManager.getLogger(ParkingLevel.class);
     private String levelId;
     private List<ParkingSpot> parkingSpots;
 
-    public ParkingLevel(String levelId, int spots) {
+    public ParkingLevel(String levelId, List<ParkingSpot> spots) {
         this.levelId = levelId;
         parkingSpots = new ArrayList<>(spots);
+        logger.info("Parking {} initialized", levelId);
     }
 
     public Optional<ParkingSpot> findParkingSpot(VehicleType vehicleType) {
@@ -32,5 +36,9 @@ public class ParkingLevel {
             case TRUCK -> ParkingSpotType.LARGE;
             default -> throw new IllegalArgumentException("Unknown vehicle type: " + vehicleType);
         };
+    }
+
+    public String getLevelId() {
+        return levelId;
     }
 }
