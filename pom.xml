@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>parking-lot-system</module>
+        <module>design-patterns</module>
     </modules>
 
     <properties>

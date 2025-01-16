@@ -2,7 +2,14 @@ package org.mshaq.lld.pls.claude;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mshaq.lld.pls.claude.Enum.ParkingSpotType;
 import org.mshaq.lld.pls.claude.Enum.TicketStatus;
+import org.mshaq.lld.pls.claude.Enum.VehicleType;
+import org.mshaq.lld.pls.claude.factory.parkingspot.CompactParkingFactory;
+import org.mshaq.lld.pls.claude.factory.parkingspot.LargeParkingFactory;
+import org.mshaq.lld.pls.claude.factory.parkingspot.MotorcycleParkingFactory;
+import org.mshaq.lld.pls.claude.factory.parkingspot.ParkingSpotFactory;
+import org.mshaq.lld.pls.claude.factory.vehicle.VehicleFactory;
 import org.mshaq.lld.pls.claude.model.Ticket;
 import org.mshaq.lld.pls.claude.model.Vehicle;
 import org.mshaq.lld.pls.claude.payment.PaymentProcessor;
@@ -21,10 +28,13 @@ public class ParkingLot {
     private Map<String, Ticket> activeTickets;
     private ParkingRateCalculator rateCalculator;
 
+    private Map<VehicleType, VehicleFactory> factories;
+
     private ParkingLot() {
         this.parkingLevels = new ArrayList<>();
         this.activeTickets = new ConcurrentHashMap<>();
         this.rateCalculator = new ParkingRateCalculator();
+        initializeVehicleFactories();
         logger.info("Created parking lot");
     }
 
@@ -36,9 +46,28 @@ public class ParkingLot {
 
     }
 
+    private void initializeVehicleFactories() {
+        for (VehicleType value : VehicleType.values()) {
+            factories.put(value, VehicleFactory.getFactory(value));
+        }
+    }
+
     public void addParkingLevel(ParkingLevel parkingLevel) {
         logger.info("Adding {} to parking lot", parkingLevel.getLevelId());
         parkingLevels.add(parkingLevel);
+    }
+
+    private Vehicle createVehicle(VehicleType type, String licensePlate) {
+        VehicleFactory factory = factories.get(type);
+        if (factory == null) {
+            throw new IllegalArgumentException("Invalid vehicle type: " + type);
+        }
+        return factory.createVehicle(licensePlate);
+    }
+
+    public Optional<Ticket> parkVehicle(VehicleType type, String license) {
+        Vehicle vehicle = createVehicle(type, license);
+        return parkVehicle(vehicle);
     }
 
     public Optional<Ticket> parkVehicle(Vehicle vehicle) {
@@ -61,7 +90,7 @@ public class ParkingLot {
         return Optional.empty();
     }
 
-    public boolean exitParking(Ticket ticket, PaymentProcessor paymentProcessor) {
+    public boolean exitParking(Ticket ticket, ParkingSpotType spotType) {
 
         if (ticket == null || ticket.getTicketStatus() != TicketStatus.ACTIVE) {
             logger.warn("Invalid ticket or ticket status for exit");
@@ -77,6 +106,8 @@ public class ParkingLot {
         double parkingPrice = rateCalculator.calculateRate(ticket.getVehicle().getVehicleType(),
                 durationInMinutes);
 
+        ParkingSpotFactory factory = getParkingSystemFactory(spotType);
+        PaymentProcessor paymentProcessor = factory.createPaymentProcessor();
         if (paymentProcessor.processPayment(parkingPrice)) {
             ticket.setAmountPaid(parkingPrice);
             ticket.setTicketStatus(TicketStatus.PAID);
@@ -84,8 +115,16 @@ public class ParkingLot {
             logger.info("Vehicle {} successfully exited", ticket.getVehicle().getLicensePlate());
             return true;
         }
-
         return false;
+    }
+
+    private ParkingSpotFactory getParkingSystemFactory(ParkingSpotType spotType) {
+        return switch (spotType) {
+            case COMPACT -> new CompactParkingFactory();
+            case LARGE -> new LargeParkingFactory();
+            case MOTORCYCLE -> new MotorcycleParkingFactory();
+            default -> throw new IllegalArgumentException("Invalid spot type: " + spotType);
+        };
     }
 
 }
