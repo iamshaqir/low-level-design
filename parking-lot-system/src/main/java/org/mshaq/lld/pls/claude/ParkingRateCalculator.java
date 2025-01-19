@@ -1,6 +1,5 @@
 package org.mshaq.lld.pls.claude;
 
-import org.mshaq.lld.pls.claude.Enum.ParkingSpotType;
 import org.mshaq.lld.pls.claude.Enum.VehicleType;
 
 import java.util.HashMap;
