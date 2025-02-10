@@ -16,6 +16,7 @@
     <modules>
         <module>parking-lot-system</module>
         <module>springboot-machine-coding</module>
+        <module>tic-tack-toe</module>
     </modules>
 
     <properties>
