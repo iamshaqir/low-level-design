@@ -10,10 +10,10 @@
     </parent>
 
     <groupId>org.mshaq.designpatterns</groupId>
-    <artifactId>springboot-machine-coding</artifactId>
+    <artifactId>springboot</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>parking-lot-system-springboot</module>
+        <module>parkinglot-sb</module>
     </modules>
 
     <properties>

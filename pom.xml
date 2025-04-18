@@ -14,9 +14,9 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>parking-lot-system</module>
-        <module>springboot-machine-coding</module>
-        <module>tic-tack-toe</module>
+        <module>parkinglot</module>
+        <module>springboot</module>
+        <module>tictacktoe</module>
     </modules>
 
     <properties>

@@ -53,4 +53,6 @@ public class ParkingLevelService {
                 .filter(spot -> spot.getStatus().equals(SpotStatus.AVAILABLE))
                 .findFirst();
     }
+
+
 }

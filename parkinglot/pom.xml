@@ -9,8 +9,8 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.mshaq.machinecoding</groupId>
-    <artifactId>tic-tack-toe</artifactId>
+    <groupId>org.mshaq.lld</groupId>
+    <artifactId>parkinglot</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
