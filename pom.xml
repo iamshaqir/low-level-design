@@ -17,6 +17,7 @@
         <module>parkinglot</module>
         <module>springboot</module>
         <module>tictacktoe</module>
+        <module>caching</module>
     </modules>
 
     <properties>
