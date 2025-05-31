@@ -2,12 +2,10 @@ package com.mshaq.caching.eviction;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
-public class LFUCache<K, V> {
+public class LFUCache<K, V> implements EvictionPolicy<K, V> {
 
     private static final int DEFAULT_CAPACITY = 16;
-
     private final int capacity;
     private int size;
     private int minimumFrequency;
@@ -26,10 +24,9 @@ public class LFUCache<K, V> {
         this.freqMap = new HashMap<>();
     }
 
+    @Override
     public void put(K key, V value) {
-        if (capacity == 0) {
-            throw new NoSuchElementException("No capacity");
-        }
+        if (capacity <= 0) throw new RuntimeException("No capacity to put element");
 
         if (cache.containsKey(key)) {
             Node<K, V> node = cache.get(key);
@@ -55,6 +52,14 @@ public class LFUCache<K, V> {
         currentList.add(newNode);
         freqMap.put(newNode.frequency, currentList);
         cache.put(key, newNode);
+    }
+
+    @Override
+    public V get(K key) {
+        if (!cache.containsKey(key)) return null;
+        Node<K, V> node = cache.get(key);
+        updateNode(node);
+        return node.value;
     }
 
     private void updateNode(Node<K, V> node) {
